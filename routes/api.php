@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TaskController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,5 +28,8 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/refresh', 'refresh');
 });
 
-Route::get('/tasks', [TaskController::class, 'index']);
-Route::post('/tasks', [TaskController::class, 'store']);
+Route::post('/create_task', [TaskController::class, 'store']); /** WORK */
+Route::get('/show_task/{id}', [TaskController::class, 'show']); /** WORK */
+Route::any('/update_task/{id}', [TaskController::class, 'update']);
+Route::delete('/delete_task/{id}', [TaskController::class, 'delete']);
+Route::get('/list_tasks', [TaskController::class, 'index']); /** WORK */
