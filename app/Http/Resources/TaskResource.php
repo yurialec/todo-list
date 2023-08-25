@@ -21,7 +21,7 @@ class TaskResource extends JsonResource
             'description' => $this->description,
             'attachment' => $this->attachment,
             'completed' => $this->completed,
-            'dt_created' => Carbon::make($this->dt_created)->format('Y-m-d H:i:s'),
+            'dt_created' => $this->dt_created,
             'dt_completed' => $this->dt_completed,
             'dt_updated' => $this->dt_updated,
             'dt_deleted' => $this->dt_deleted,

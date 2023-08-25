@@ -6,7 +6,10 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
@@ -23,29 +26,55 @@ class TaskController extends Controller
             $taskReturn = TaskResource::collection($tasks);
 
             return response()->json([
-                'status' => 204,
+                'status' => 200,
                 'message' => 'Success.',
                 'tasks' => $taskReturn,
             ]);
         } else {
             return response()->json([
-                'status' => 500,
-                'message' => 'Erro',
+                'status' => 200,
+                'message' => 'Sucess',
+                'tasks' => [],
             ]);
         }
     }
 
+    /**
+     * Create a new Task
+     *
+     * @param StoreTaskRequest $request
+     * @return void
+     */
     public function store(StoreTaskRequest $request)
     {
-        $data = $request->all();
+        $data = (object) $request->all();
 
         if (!empty($data)) {
-            $task = Task::create($data);
-            if ($task) {
+
+            $file = $data->attachment;
+
+            if ($file->isValid()) {
+                $nameFile = Str::of($data->title)->slug('-') . '.' . $data->attachment->getClientOriginalExtension();
+                $image = $data->attachment->storeAs('tasks', $nameFile);
+                $data->attachment = $image;
+            }
+
+            $task = new Task;
+            $task->title = $data->title;
+            $task->description = $data->description;
+            $task->completed = 0;
+            $task->dt_created = date("Y-m-d H:i:s");
+            $task->dt_completed = NULL;
+            $task->dt_updated = NULL;
+            $task->dt_deleted = NULL;
+            $task->user_id = 1;
+            $task->attachment = $data->attachment;
+
+            if ($task->save()) {
                 $taskReturn = new TaskResource($task);
 
                 return response()->json([
-                    'status' => 204,
+                    'status' => 200,
                     'message' => 'Created Successfully.',
                     'task' => $taskReturn,
                 ]);
@@ -58,37 +87,93 @@ class TaskController extends Controller
         } else {
             return response()->json([
                 'status' => 500,
-                'message' => 'Insert informations.',
+                'message' => 'Insert informations to create a task.',
             ]);
         }
     }
 
+    /**
+     * Show detailed Task
+     *
+     * @param string $id
+     * @return void
+     */
     public function show(string $id)
     {
-        $task = Task::findOrFail($id);
-        return new TaskResource($task);
+        $task = Task::find($id);
+
+        if (!empty($task)) {
+
+            $taskReturn = new TaskResource($task);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Succes.',
+                'task' => $taskReturn,
+            ]);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'No results found.',
+                'task' => [],
+            ]);
+        }
     }
 
-    public function update(UpdateTaskRequest $request, $id)
+    /**
+     * Update Task
+     *
+     * @param Request $request
+     * @param integer $id
+     * @return void
+     */
+    public function update(Request $request, int $id)
     {
-        $data = $request->all();
+        $data = (object) $request->all();
 
         if (!empty($data)) {
+
             $task = Task::find($id);
 
-            if ($task->update()) {
+            if (!empty($task)) {
 
-                $taskReturn = new TaskResource($task);
+                if (Storage::exists($task->attachment)) {
+                    Storage::delete($task->attachment);
+                }
 
-                return response()->json([
-                    'status' => 204,
-                    'message' => 'Updated Successfully.',
-                    'task' => $taskReturn,
-                ]);
+                $file = $data->attachment;
+
+                if ($file->isValid()) {
+                    $nameFile = Str::of($data->title)->slug('-') . '.' . $data->attachment->getClientOriginalExtension();
+                    $image = $data->attachment->storeAs('tasks', $nameFile);
+                    $data->attachment = $image;
+                }
+
+                $task->title = $data->title;
+                $task->description = $data->description;
+                $task->dt_updated = date("Y-m-d H:i:s");
+                $task->user_id = 1;
+                $task->attachment = $data->attachment;
+
+                try {
+                    $task->save();
+
+                    $taskReturn = new TaskResource($task);
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Updated Successfully.',
+                        'task' => $taskReturn,
+                    ]);
+                } catch (Exception $err) {
+                    // dd($err->getMessage());
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Try again later.',
+                    ]);
+                }
             } else {
                 return response()->json([
                     'status' => 500,
-                    'message' => 'Try again later.',
+                    'message' => 'Task not found.',
                 ]);
             }
         } else {
@@ -97,22 +182,26 @@ class TaskController extends Controller
                 'message' => 'Insert informations.',
             ]);
         }
-
-
-        $task = Task::findOrFail($id);
-        $task->update($data);
-        return new TaskResource($task);
     }
 
+    /**
+     * Delete Task
+     *
+     * @param integer $id
+     * @return void
+     */
     public function delete(int $id)
     {
         $task = Task::find($id);
 
-        if (!empty($task->exists)) {
+        if (!empty($task)) {
 
             if ($task->delete()) {
+                if (Storage::exists($task->attachment)) {
+                    Storage::delete($task->attachment);
+                }
                 return response()->json([
-                    'status' => 204,
+                    'status' => 200,
                     'message' => 'Deleted Successfully.',
                 ]);
             } else {

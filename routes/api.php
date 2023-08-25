@@ -30,6 +30,6 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::post('/create_task', [TaskController::class, 'store']); /** WORK */
 Route::get('/show_task/{id}', [TaskController::class, 'show']); /** WORK */
-Route::any('/update_task/{id}', [TaskController::class, 'update']);
-Route::delete('/delete_task/{id}', [TaskController::class, 'delete']);
+Route::delete('/delete_task/{id}', [TaskController::class, 'delete']); /** WORK */
 Route::get('/list_tasks', [TaskController::class, 'index']); /** WORK */
+Route::post('/update_task/{id}', [TaskController::class, 'update']);

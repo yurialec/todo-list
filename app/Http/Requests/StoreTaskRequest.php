@@ -21,12 +21,10 @@ class StoreTaskRequest extends FormRequest
      */
     public function rules(): array
     {
-        if ($this->method() === 'POST') {
-            return [
-                'title' => 'required|max:255|min:6',
-                'description' => 'required|max:255|min:6',
-                'attachment' => 'required',
-            ];
-        }
+        return [
+            'title' => 'required|max:255|min:6',
+            'description' => 'required|max:255|min:6',
+            'attachment' => 'required|image',
+        ];
     }
 }

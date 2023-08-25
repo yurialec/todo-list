@@ -22,13 +22,9 @@ class UpdateTaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|min:6|max:200',
-            'description' => 'required|min:6|max:200',
-            'attachment' => 'required'
+            'title' => 'required|max:255|min:6',
+            'description' => 'required|max:255|min:6',
+            'attachment' => 'required|image',
         ];
-
-        // if ($this->method() === "PUT") {
-        //     return $rules;
-        // }
     }
 }
