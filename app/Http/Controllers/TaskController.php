@@ -8,11 +8,20 @@ use App\Http\Resources\TaskResource;
 use App\Models\Task;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class TaskController extends Controller
 {
+    /**
+     * Verify if user is athenticated
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * List all tasks
      *
@@ -20,7 +29,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $currentUser = Auth::user()->id;
+        $tasks = Task::where('user_id', '=', $currentUser)->get();
 
         if (!empty($tasks)) {
             $taskReturn = TaskResource::collection($tasks);
@@ -59,6 +69,8 @@ class TaskController extends Controller
                 $data->attachment = $image;
             }
 
+            $currentUser = Auth::user()->id;
+
             $task = new Task;
             $task->title = $data->title;
             $task->description = $data->description;
@@ -66,8 +78,8 @@ class TaskController extends Controller
             $task->dt_created = date("Y-m-d H:i:s");
             $task->dt_completed = NULL;
             $task->dt_updated = NULL;
-            $task->dt_deleted = NULL;
-            $task->user_id = 1;
+            $task->deleted_at = NULL;
+            $task->user_id = $currentUser;
             $task->attachment = $data->attachment;
 
             if ($task->save()) {
@@ -100,11 +112,15 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::find($id);
+        $currentUser = Auth::user()->id;
+        $task = Task::where('id', '=', $id)
+            ->where('user_id', '=', $currentUser)
+            ->get();
 
         if (!empty($task)) {
 
-            $taskReturn = new TaskResource($task);
+            $taskReturn = TaskResource::collection($task);
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Succes.',
@@ -214,6 +230,50 @@ class TaskController extends Controller
             return response()->json([
                 'status' => 500,
                 'message' => 'Task not found.',
+            ]);
+        }
+    }
+
+    public function completeTask(Request $request, int $id)
+    {
+        $data = $request->all();
+
+        if (!empty($data)) {
+            $task = Task::find($id);
+
+            if (!empty($task)) {
+
+                $task->completed = $data['completed'];
+                $task->dt_updated = date("Y-m-d H:i:s");
+                $task->dt_completed = date("Y-m-d H:i:s");
+
+                try {
+                    $task->save();
+
+                    $taskReturn = new TaskResource($task);
+
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Task completed Successfully.',
+                        'task' => $taskReturn,
+                    ]);
+                } catch (Exception $err) {
+                    // dd($err->getMessage());
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Try again later.',
+                    ]);
+                }
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Task not found.',
+                ]);
+            }
+        } else {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Insert informations.',
             ]);
         }
     }

@@ -20,11 +20,11 @@ class TaskResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'attachment' => $this->attachment,
-            'completed' => $this->completed,
+            'completed' => $this->completed == 0 ? "Not completed yet" : "Completed",
             'dt_created' => $this->dt_created,
             'dt_completed' => $this->dt_completed,
             'dt_updated' => $this->dt_updated,
-            'dt_deleted' => $this->dt_deleted,
+            'deleted_at' => $this->deleted_at,
             'user_id' => $this->user_id,
         ];
     }

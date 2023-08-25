@@ -19,7 +19,7 @@ class Task extends Model
         'dt_created',
         'dt_completed',
         'dt_updated',
-        'dt_deleted',
+        'deleted_at',
         'user_id',
     ];
 }

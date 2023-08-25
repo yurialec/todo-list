@@ -32,4 +32,5 @@ Route::post('/create_task', [TaskController::class, 'store']); /** WORK */
 Route::get('/show_task/{id}', [TaskController::class, 'show']); /** WORK */
 Route::delete('/delete_task/{id}', [TaskController::class, 'delete']); /** WORK */
 Route::get('/list_tasks', [TaskController::class, 'index']); /** WORK */
-Route::post('/update_task/{id}', [TaskController::class, 'update']);
+Route::post('/update_task/{id}', [TaskController::class, 'update']); /** WORK */
+Route::post('/complete_task/{id}', [TaskController::class, 'completeTask']);
