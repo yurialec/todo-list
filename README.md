@@ -1,52 +1,30 @@
 ## Laravel API TodoList
 
-INFORMATIONS OF THE PROJECT
+The purpose of the project is to present a list of tasks, where the user needs to register first, the system will be able to register a task, visualize it, edit, delete, or mark it as completed.
 
 ## Installation
 
-1. run `composer create-project francescomalatesta/laravel-api-boilerplate-jwt myNextProject`;
+1. run `compose up -d` inside de main folder of the project;
 
 Once the project creation procedure will be completed, run the `php artisan migrate` command to install the required tables.
 
-## Usage
-
-USAGE
-
 ## Main Features
 
-MAIN FEATUES
+Create a new user, log in, CRUD of the task, mark task as completed. 
 
 ### How to Use
 
+* `POST api/auth/register`, to create a new user into your application;
 * `POST api/auth/login`, to do the login and get your access token;
-* `POST api/auth/refresh`, to refresh an existent access token by getting a new one;
-* `POST api/auth/signup`, to create a new user into your application;
-* `POST api/auth/recovery`, to recover your credentials;
-* `POST api/auth/reset`, to reset your password after the recovery;
 * `POST api/auth/logout`, to log out the user by invalidating the passed token;
-* `GET api/auth/me`, to get current user data;
+* `GET api/tasks/`, to list all tasks;
+* `POST api/tasks/create`, to create a new task;
+* `GET api/tasks/id`, to show details of a task;
+* `DELETE api/tasks/id`, to delete a task;
+* `POST api/tasks/update/id`, to update a task;
+* `POST api/tasks/complete_task/id`, to mark a task as completed;
 
-### Separate File for Routes
-
-All the API routes can be found in the `routes/api.php` file. This also follow the Laravel 5.5 convention.
-
-### Secrets Generation
-
-Every time you create a new project starting from this repository, the _php artisan jwt:generate_ command will be executed.
-
-## Configuration
-
-CONFIGURATION
-
-## Tests
-
-If you want to contribute to this project, feel free to do it and open a PR. However, make sure you have tests for what you implement.
-
-In order to run tests:
-
-* be sure to have the PDO sqlite extension installed in your environment;
-* run `php vendor/bin/phpunit`;
 
 ## Feedback
 
-I currently made this project for personal purposes. I decided to share it here to help anyone with the same needs. If you have any feedback to improve it, feel free to make a suggestion, or open a PR!
+I currently made this project for the test of Buzzvel. I hope to have a feedback as soon as possible :)
